@@ -9,6 +9,8 @@
 6、IP海代理 http://www.iphai.com/free/ng
 7、极速代理 http://www.superfastip.com/welcome/freeip/1
 8、西刺代理  https://www.xicidaili.com/nn/
+9、西拉免费代理IP  http://www.xiladaili.com/https/1/
+10、http://www.nimadaili.com/gaoni/
 
 TODO 代理抓取通用爬虫
 """
@@ -189,38 +191,73 @@ class CatchProxyIp:
         except Exception as e:
             print(e)
 
-    # https://proxy.mimvp.com/freesecret.php?proxy=in_hp&sort=&page=1 mimvp代理
-    def mimvp_proxy(self):
+    # http://www.xiladaili.com/https/1/  西拉免费代理IP
+    def xiladaili_proxy(self):
+        # TODO 可用率比较高  有反爬限制
         try:
             header = self.headers.copy()
             # 34页
-            urls = ['https://proxy.mimvp.com/freesecret.php?proxy=in_hp&sort=&page={page}'.format(page=str(i)) for i in range(1, 11)]
+            num = 4
+            urls = ['http://www.xiladaili.com/https/{page}/'.format(page=str(i)) for i in range(1, num)]
+            urls += ['http://www.xiladaili.com/putong/{page}/'.format(page=str(i)) for i in range(1, num)]
+            urls += ['http://www.xiladaili.com/gaoni/{page}/'.format(page=str(i)) for i in range(1, num)]
+            urls += ['http://www.xiladaili.com/https/{page}/'.format(page=str(i)) for i in range(1, num)]
             frames = []
             for link in urls:
                 ret = requests.get(link, headers=header)
-                print(ret.text)
                 df = pd.read_html(io=ret.content, header=0)[0]
-                print(df)
+                time.sleep(0.5)
                 frames.append(df)
             df = pd.concat(frames)
-            ip_lst = self.merge_col(df.iloc[:, 1:3], None, ':').tolist()
+            ip_lst = df.iloc[:, 0].tolist()
             rate = self.save_to_redis(ip_lst)
-            print('mimvp_proxy - ', rate)
+            print('xiladaili_proxy - ', rate)
+        except Exception as e:
+            print(e)
+
+    # http://www.nimadaili.com/gaoni/  免费代理IP
+    def nimadaili_proxy(self):
+        # TODO 可用率比较高  有反爬限制
+        try:
+            header = self.headers.copy()
+            num = 3
+            urls = ['http://www.nimadaili.com/gaoni//{page}/'.format(page=str(i)) for i in range(1, num)]
+            urls += ['http://www.nimadaili.com/http//{page}/'.format(page=str(i)) for i in range(1, num)]
+            urls += ['http://www.nimadaili.com/https//{page}/'.format(page=str(i)) for i in range(1, num)]
+            frames = []
+            for link in urls:
+                ret = requests.get(link, headers=header)
+                df = pd.read_html(io=ret.content, header=0)[0]
+                time.sleep(0.5)
+                frames.append(df)
+            df = pd.concat(frames)
+            ip_lst = df.iloc[:, 0].tolist()
+            rate = self.save_to_redis(ip_lst)
+            print('nimadaili_proxy - ', rate)
         except Exception as e:
             print(e)
 
     def catch(self):
-        self.cloud_proxy()
-        self.kuai_proxy()
-        self.goubanjia_proxy_free()
-        self.qydaili_proxy()
-        self.ip89_proxy()
-        self.iphai_proxy()
-        self.superfastip_proxy()
-        self.xici_proxy()
-        # self.mimvp_proxy()
+        # self.cloud_proxy()
+        # self.kuai_proxy()
+        # self.goubanjia_proxy_free()
+        # self.qydaili_proxy()
+        # self.ip89_proxy()
+        # self.iphai_proxy()
+        # self.superfastip_proxy()
+        # self.xici_proxy()
+        # self.xiladaili_proxy()
+        self.nimadaili_proxy()
 
 
 if __name__ == '__main__':
     # TODO 合并代码  代码重复率太高
+
+    # TODO 代理网站
+    # http://ip.kxdaili.com/ipList/1.html#ip
+    # http://31f.cn/
+    # http://www.shenjidaili.com/shareip/   http代理
+    # http://www.66ip.cn/areaindex_19/1.html
+    # http://feilongip.com/
+    # http://www.dlnyys.com/free/
     CatchProxyIp().catch()
